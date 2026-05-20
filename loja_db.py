@@ -66,6 +66,17 @@ def buscarUmCliente(id):
     colunas = [desc[0] for desc in cursor.description]
     return dict(zip(colunas, clienteEspecifico))
 
+def buscarClientePorEmail(email,senha):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""SELECT * FROM cliente WHERE email = ? AND senha = ?""", (email,senha))
+    clienteEmail = cursor.fetchone()
+    if clienteEmail == None:
+        return None
+    else:
+        colunas = [desc[0] for desc in cursor.description]
+        return dict(zip(colunas, clienteEmail))
+
 def atualizarCliente(nome,email,senha,id):
     bancoDados = sqlite3.connect("banco-dados-loja.db")
     cursor = bancoDados.cursor()
