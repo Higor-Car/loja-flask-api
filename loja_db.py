@@ -1,151 +1,164 @@
-from flask import request,Flask,jsonify,json
-from loja_db import buscarTodosOsProdutos,buscarUmProduto,inserirProduto,atualizarProduto,deletarProduto
-from loja_db import buscarTodosOsClientes,buscarUmCliente,inserirCliente,atualizarCliente,deletarCliente
-from loja_db import buscarTodosOsItensPedidos,buscarItensPedido,inserirItensPedido,atualizarItensPedido,deletarItensPedidos
-from loja_db import buscarTodosOsPedidos,buscarUmPedido,inserirPedido,atualizarPedido,deletarPedido
+import sqlite3
+
+def inserirProduto(nome,preco,descricao,quantidade):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""INSERT INTO produtos(nome,preco,descricao,quantidade) VALUES(?,?,?,?)""", (nome,preco,descricao,quantidade))
+    bancoDados.commit()
+    novoId = cursor.lastrowid
+    bancoDados.close()
+    return novoId
+
+def buscarTodosOsProdutos():
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""SELECT * FROM produtos""")
+    todosOsProdutos = cursor.fetchall()
+    colunas = [desc[0] for desc in cursor.description]
+    return [dict(zip(colunas, linha)) for linha in todosOsProdutos]
+
+def buscarUmProduto(id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""SELECT * FROM produtos WHERE id = ?""", (id,))
+    produtoEspecifico = cursor.fetchone()
+    colunas = [desc[0] for desc in cursor.description]
+    return dict(zip(colunas, produtoEspecifico))
+
+def atualizarProduto(nome,preco,descricao,quantidade,id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""UPDATE produtos SET nome = ?, preco= ?,descricao= ?, quantidade = ? WHERE id = ?""",(nome, preco, descricao, quantidade,id))
+    bancoDados.commit()
+    bancoDados.close()
+
+def deletarProduto(id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""DELETE FROM produtos WHERE id = ?""", (id,))
+    bancoDados.commit()
+    bancoDados.close()
 
 
-app = Flask(__name__)
 
-@app.route("/produtos", methods=["GET"])
-def listarProdutos():
-    produtos=buscarTodosOsProdutos()
-    return jsonify(produtos), 200
+def inserirCliente(nome, email, senha):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""INSERT INTO cliente(nome, email, senha)VALUES (?, ?, ?)""", (nome, email, senha))
+    bancoDados.commit()
+    novoId = cursor.lastrowid
+    bancoDados.close()
+    return novoId
 
-@app.route("/produtos/<int:id>", methods=["GET"])
-def listarProduto(id):
-    produto=buscarUmProduto (id)
-    return jsonify(produto), 200
+def buscarTodosOsClientes():
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""SELECT * FROM cliente""")
+    todosOsClientes = cursor.fetchall()
+    colunas = [desc[0] for desc in cursor.description]
+    return [dict(zip(colunas, linha)) for linha in todosOsClientes]
 
-@app.route("/produtos", methods=["POST"])
-def adicionarProduto():
-    dados = request.json
-    nome = dados.get("nome")
-    preco = dados.get("preco")
-    descricao = dados.get("descricao")
-    quantidade = dados.get("quantidade")
-    addProduto = inserirProduto(nome,preco,descricao,quantidade)
-    return jsonify({"mensagem":"Produto criado","id": addProduto}), 201
+def buscarUmCliente(id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""SELECT * FROM cliente WHERE id = ?""", (id,))
+    clienteEspecifico = cursor.fetchone()
+    colunas = [desc[0] for desc in cursor.description]
+    return dict(zip(colunas, clienteEspecifico))
 
-@app.route("/produtos/<int:id>", methods=["PUT"])
-def editarProduto(id):
-    dados = request.json
-    nome = dados.get("nome")
-    preco = dados.get("preco")
-    descricao = dados.get("descricao")
-    quantidade = dados.get("quantidade")
-    attProduto = atualizarProduto(nome,preco,descricao,quantidade,id)
-    return jsonify({"mensagem": f"Produto com id {id} atualizado com sucesso"}), 200
+def atualizarCliente(nome,email,senha,id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""UPDATE cliente SET nome= ?,email= ?,senha= ? WHERE id = ?""", (nome, email, senha, id))
+    bancoDados.commit()
+    bancoDados.close()
 
-@app.route("/produtos/<int:id>", methods=["DELETE"])
-def excluirProduto(id):
-    delProduto = deletarProduto(id)
-    return jsonify({"mensagem" : f"Produto com id {id} foi deletado com sucesso"}),200
+def deletarCliente(id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""DELETE FROM cliente WHERE id = ?""", (id,))
+    bancoDados.commit()
+    bancoDados.close()
 
-#Separar produto de cliente
 
-@app.route("/clientes", methods=["GET"])
-def listarClientes():
-    clientes=buscarTodosOsClientes()
-    return jsonify(clientes), 200
 
-@app.route("/clientes/<int:id>", methods=["GET"])
-def listarCliente(id):
-    cliente=buscarUmCliente(id)
-    return jsonify(cliente), 200
+def inserirPedido(cliente_id, data):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""INSERT INTO pedido(cliente_id,data)VALUES(?,?)""",(cliente_id,data))
+    bancoDados.commit()
+    novoId = cursor.lastrowid
+    bancoDados.close()
+    return novoId
 
-@app.route("/clientes", methods=["POST"])
-def adicionarCliente():
-    dados = request.json
-    nome = dados.get("nome")
-    email = dados.get("email")
-    senha = dados.get("senha")
-    addCliente = inserirCliente(nome,email,senha)
-    return jsonify({"mensagem":"Cliente criado","id": addCliente}), 201
+def buscarTodosOsPedidos():
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""SELECT * FROM pedido""")
+    todosOsPedidos = cursor.fetchall()
+    colunas = [desc[0] for desc in cursor.description]
+    return [dict(zip(colunas, linha)) for linha in todosOsPedidos]
 
-@app.route("/clientes/<int:id>", methods=["PUT"])
-def editarCliente(id):
-    dados = request.json
-    nome = dados.get("nome")
-    email = dados.get("email")
-    senha = dados.get("senha")
-    attProduto = atualizarCliente(nome,email,senha,id)
-    return jsonify({"mensagem": f"Cliente com id {id} atualizado com sucesso"}), 200
+def buscarUmPedido(id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""SELECT * FROM pedido WHERE id=?""",(id,))
+    pedidoEspecifico = cursor.fetchone()
+    colunas = [desc[0] for desc in cursor.description]
+    return dict(zip(colunas, pedidoEspecifico))
 
-@app.route("/clientes/<int:id>", methods=["DELETE"])
-def excluirCliente(id):
-    delCliente = deletarCliente(id)
-    return jsonify({"mensagem" : f"Cliente com id {id} foi deletado com sucesso"}),200
+def atualizarPedido(cliente_id, data, id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""UPDATE pedido SET cliente_id = ?,data = ? WHERE id = ?""",(cliente_id,data,id))
+    bancoDados.commit()
+    bancoDados.close()
 
-#Separar cliente de pedidos
+def deletarPedido(id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""DELETE FROM pedido WHERE id=?""",(id,))
+    bancoDados.commit()
+    bancoDados.close()
 
-@app.route("/pedidos", methods=["GET"])
-def listarPedidos():
-    pedidos=buscarTodosOsPedidos()
-    return jsonify(pedidos), 200
 
-@app.route("/pedidos/<int:id>", methods=["GET"])
-def listarPedido(id):
-    pedido = buscarUmPedido(id)
-    return jsonify(pedido), 200
+def inserirItensPedido(pedido_id,produto_id,quantidade):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""INSERT INTO itensPedido(pedido_id,produto_id,quantidade)VALUES(?,?,?)""",(pedido_id,produto_id,quantidade))
+    bancoDados.commit()
+    novoId = cursor.lastrowid
+    bancoDados.close()
+    return novoId
 
-@app.route("/pedidos", methods=["POST"])
-def adicionarPedido():
-    dados = request.json
-    cliente_id = dados.get("cliente_id")
-    data = dados.get("data")
-    addPedido = inserirPedido(cliente_id,data)
-    return jsonify({"mensagem":"Pedido criado","id": addPedido}), 201
+def buscarTodosOsItensPedidos():
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""SELECT * FROM itensPedido""")
+    todosOsItensPedidos = cursor.fetchall()
+    colunas = [desc[0] for desc in cursor.description]
+    return [dict(zip(colunas, linha)) for linha in todosOsItensPedidos]
 
-@app.route("/pedidos/<int:id>", methods=["PUT"])
-def editarPedido(id):
-    dados = request.json
-    cliente_id = dados.get("cliente_id")
-    data = dados.get("data")
-    attPedido = atualizarPedido(cliente_id, data,id)
-    return jsonify({"mensagem": f"Pedido com id {id} atualizado com sucesso"}), 200
+def buscarItensPedido(id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""SELECT * FROM itensPedido WHERE id=?""",(id,))
+    itensPedidoEspecifico = cursor.fetchone()
+    colunas = [desc[0] for desc in cursor.description]
+    return dict(zip(colunas, itensPedidoEspecifico))
 
-@app.route("/pedidos/<int:id>", methods=["DELETE"])
-def excluirPedido(id):
-    delCliente = deletarPedido(id)
-    return jsonify({"mensagem" : f"Pedido com id {id} foi deletado com sucesso"}),200
+def atualizarItensPedido(pedido_id, produto_id,quantidade, id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""UPDATE itensPedido SET pedido_id = ?,produto_id = ?,quantidade = ? WHERE id = ?""",(pedido_id,produto_id,quantidade,id))
+    bancoDados.commit()
+    bancoDados.close()
 
-#Separar pedidos de Itens Pedidos
-
-@app.route("/itensPedidos", methods=["GET"])
-def listarItensPedidos():
-    itensPedidos=buscarTodosOsItensPedidos()
-    return jsonify(itensPedidos), 200
-
-@app.route("/itensPedidos/<int:id>", methods=["GET"])
-def listarItenPedido(id):
-    itenPedido=buscarItensPedido(id)
-    return jsonify(itenPedido), 200
-
-@app.route("/itensPedidos", methods=["POST"])
-def adicionarItenPedido():
-    dados = request.json
-    pedido_id = dados.get("pedido_id")
-    produto_id = dados.get("produto_id")
-    quantidade = dados.get("quantidade")
-    addItensPedido = inserirItensPedido(pedido_id,produto_id,quantidade)
-    return jsonify({"mensagem":"Itens Pedido criado","id": addItensPedido}), 201
-
-@app.route("/itensPedidos/<int:id>", methods=["PUT"])
-def editarItenPedido(id):
-    dados = request.json
-    pedido_id = dados.get("pedido_id")
-    produto_id = dados.get("produto_id")
-    quantidade = dados.get("quantidade")
-    attItensPedido = atualizarItensPedido(pedido_id,produto_id,quantidade,id)
-    return jsonify({"mensagem": f"Itens Pedido com id {id} atualizado com sucesso"}), 200
-
-@app.route("/itensPedidos/<int:id>", methods=["DELETE"])
-def excluirItensPedido(id):
-    delCliente = deletarItensPedidos(id)
-    return jsonify({"mensagem" : f"Itens Pedidos com id {id} foi deletado com sucesso"}),200
-
-if __name__ == "__main__":
-    app.run(debug=True)
+def deletarItensPedidos(id):
+    bancoDados = sqlite3.connect("banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+    cursor.execute("""DELETE FROM itensPedido WHERE id = ?""",(id,))
+    bancoDados.commit()
+    bancoDados.close()
 
 
