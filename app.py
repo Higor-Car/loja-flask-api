@@ -43,6 +43,7 @@ def adicionarProduto():
     return jsonify({"mensagem":"Produto criado","id": addProduto}), 201
 
 @app.route("/produtos/<int:id>", methods=["PUT"])
+@jwt_required()
 def editarProduto(id):
     dados = request.json
     nome = dados.get("nome")
@@ -53,6 +54,7 @@ def editarProduto(id):
     return jsonify({"mensagem": f"Produto com id {id} atualizado com sucesso"}), 200
 
 @app.route("/produtos/<int:id>", methods=["DELETE"])
+@jwt_required()
 def excluirProduto(id):
     delProduto = deletarProduto(id)
     return jsonify({"mensagem" : f"Produto com id {id} foi deletado com sucesso"}),200
@@ -70,6 +72,7 @@ def listarCliente(id):
     return jsonify(cliente), 200
 
 @app.route("/clientes", methods=["POST"])
+@jwt_required()
 def adicionarCliente():
     dados = request.json
     nome = dados.get("nome")
@@ -79,6 +82,7 @@ def adicionarCliente():
     return jsonify({"mensagem":"Cliente criado","id": addCliente}), 201
 
 @app.route("/clientes/<int:id>", methods=["PUT"])
+@jwt_required()
 def editarCliente(id):
     dados = request.json
     nome = dados.get("nome")
@@ -88,6 +92,7 @@ def editarCliente(id):
     return jsonify({"mensagem": f"Cliente com id {id} atualizado com sucesso"}), 200
 
 @app.route("/clientes/<int:id>", methods=["DELETE"])
+@jwt_required()
 def excluirCliente(id):
     delCliente = deletarCliente(id)
     return jsonify({"mensagem" : f"Cliente com id {id} foi deletado com sucesso"}),200
@@ -105,6 +110,7 @@ def listarPedido(id):
     return jsonify(pedido), 200
 
 @app.route("/pedidos", methods=["POST"])
+@jwt_required()
 def adicionarPedido():
     dados = request.json
     cliente_id = dados.get("cliente_id")
@@ -113,6 +119,7 @@ def adicionarPedido():
     return jsonify({"mensagem":"Pedido criado","id": addPedido}), 201
 
 @app.route("/pedidos/<int:id>", methods=["PUT"])
+@jwt_required()
 def editarPedido(id):
     dados = request.json
     cliente_id = dados.get("cliente_id")
@@ -121,6 +128,7 @@ def editarPedido(id):
     return jsonify({"mensagem": f"Pedido com id {id} atualizado com sucesso"}), 200
 
 @app.route("/pedidos/<int:id>", methods=["DELETE"])
+@jwt_required()
 def excluirPedido(id):
     delCliente = deletarPedido(id)
     return jsonify({"mensagem" : f"Pedido com id {id} foi deletado com sucesso"}),200
@@ -138,6 +146,7 @@ def listarItenPedido(id):
     return jsonify(itenPedido), 200
 
 @app.route("/itensPedidos", methods=["POST"])
+@jwt_required()
 def adicionarItenPedido():
     dados = request.json
     pedido_id = dados.get("pedido_id")
@@ -147,6 +156,7 @@ def adicionarItenPedido():
     return jsonify({"mensagem":"Itens Pedido criado","id": addItensPedido}), 201
 
 @app.route("/itensPedidos/<int:id>", methods=["PUT"])
+@jwt_required()
 def editarItenPedido(id):
     dados = request.json
     pedido_id = dados.get("pedido_id")
@@ -156,6 +166,7 @@ def editarItenPedido(id):
     return jsonify({"mensagem": f"Itens Pedido com id {id} atualizado com sucesso"}), 200
 
 @app.route("/itensPedidos/<int:id>", methods=["DELETE"])
+@jwt_required()
 def excluirItensPedido(id):
     delCliente = deletarItensPedidos(id)
     return jsonify({"mensagem" : f"Itens Pedidos com id {id} foi deletado com sucesso"}),200
