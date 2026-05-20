@@ -1,11 +1,25 @@
 from flask import request,Flask,jsonify,json
+from flask_jwt_extended import JWTManager, create_access_token,jwt_required
 from loja_db import buscarTodosOsProdutos,buscarUmProduto,inserirProduto,atualizarProduto,deletarProduto
 from loja_db import buscarTodosOsClientes,buscarUmCliente,inserirCliente,atualizarCliente,deletarCliente
 from loja_db import buscarTodosOsItensPedidos,buscarItensPedido,inserirItensPedido,atualizarItensPedido,deletarItensPedidos
 from loja_db import buscarTodosOsPedidos,buscarUmPedido,inserirPedido,atualizarPedido,deletarPedido
-
+from loja_db import buscarClientePorEmail
 
 app = Flask(__name__)
+app.config["JWT_SECRET_KEY"] = "kj#92@xLp!mQ3z"
+jwt = JWTManager(app)
+
+@app.route("/login", methods=["POST"])
+def login():
+    dados = request.json
+    email = dados.get("email")
+    senha = dados.get("senha")
+    buscarClienteEmail = buscarClientePorEmail(email,senha)
+    if buscarClienteEmail == None:
+        return jsonify({"mensagem":"Cliente não encontrado"}),401
+    else:
+        return jsonify(create_access_token(email))
 
 @app.route("/produtos", methods=["GET"])
 def listarProdutos():
@@ -18,6 +32,7 @@ def listarProduto(id):
     return jsonify(produto), 200
 
 @app.route("/produtos", methods=["POST"])
+@jwt_required()
 def adicionarProduto():
     dados = request.json
     nome = dados.get("nome")
@@ -147,3 +162,5 @@ def excluirItensPedido(id):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
