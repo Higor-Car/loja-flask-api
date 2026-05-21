@@ -71,21 +71,22 @@ def buscarUmCliente(id):
 def buscarClientePorEmail(email,senha):
     bancoDados = sqlite3.connect("banco-dados-loja.db")
     cursor = bancoDados.cursor()
-    cursor.execute("""SELECT * FROM cliente WHERE email = ? AND senha = ?""", (email,senha))
+    cursor.execute("""SELECT * FROM cliente WHERE email = ?""", (email,))
     clienteEmail = cursor.fetchone()
     if clienteEmail == None:
         return None
     colunas = [desc[0] for desc in cursor.description]
-    return dict(zip(colunas, clienteEmail))
+    clienteDict = dict(zip(colunas, clienteEmail))
     senhaCorreta = bcrypt.checkpw(senha.encode("utf-8"), clienteDict["senha"])
     if not senhaCorreta:
-        return none
+        return None
     return clienteDict
 
 def atualizarCliente(nome,email,senha,id):
     bancoDados = sqlite3.connect("banco-dados-loja.db")
     cursor = bancoDados.cursor()
-    cursor.execute("""UPDATE cliente SET nome= ?,email= ?,senha= ? WHERE id = ?""", (nome, email, senha, id))
+    senhaHash = bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt())
+    cursor.execute("""UPDATE cliente SET nome= ?,email= ?,senha= ? WHERE id = ?""", (nome, email, senhaHash, id))
     bancoDados.commit()
     bancoDados.close()
 
