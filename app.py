@@ -7,6 +7,7 @@ from routes.pedidos import blp as PedidosBlp
 from routes.itensPedidos import blp as ItensPedidosBlp
 from routes.auth import blp as AuthBlp
 import os
+import Banco
 
 app = Flask(__name__)
 
