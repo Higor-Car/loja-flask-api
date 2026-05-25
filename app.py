@@ -8,9 +8,12 @@ from routes.itensPedidos import blp as ItensPedidosBlp
 from routes.auth import blp as AuthBlp
 import os
 import Banco
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 
+CORS(app)
 app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "kj#92@xLp!mQ3z")
 app.config["API_TITLE"] = "Loja API"
 app.config["API_VERSION"] = "v1"
