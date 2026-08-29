@@ -21,8 +21,4 @@ jobs:
           script: |
             cd /home/ec2-user/loja-flask-api
             git pull
-<<<<<<< HEAD
             sudo systemctl restart loja-flask
-=======
-            sudo systemctl restart loja-flask
->>>>>>> ff648757315bad397900562ece43c327b5933268
