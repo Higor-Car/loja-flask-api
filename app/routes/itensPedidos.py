@@ -1,8 +1,8 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required
-from loja_db import buscarTodosOsItensPedidos,buscarItensPedido,inserirItensPedido,atualizarItensPedido,deletarItensPedidos
-from schemas import ItensPedidoSchema
+from app.models.loja_db import buscarTodosOsItensPedidos,buscarItensPedido,inserirItensPedido,atualizarItensPedido,deletarItensPedidos
+from app.schemas.schemas import ItensPedidoSchema
 
 blp = Blueprint("itensPedidos", __name__, description="Operações de itens produtos")
 
