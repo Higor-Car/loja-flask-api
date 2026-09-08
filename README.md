@@ -24,6 +24,7 @@ API REST desenvolvida em Python com Flask para gerenciar produtos, clientes, ped
 | `Procfile` | Comando de start em produção (`gunicorn app:app`) |
 | `runtime.txt` | Versão do Python usada em produção |
 | `requirements.txt` | Dependências do projeto |
+| `.github/workflows/deploy.yml` | Pipeline de deploy automático (GitHub Actions) |
 
 ## Como executar localmente
 
@@ -61,6 +62,27 @@ Authorization: Bearer <seu_token>
 | GET/PUT/DELETE | `/itensPedidos/<id>` | Buscar / Atualizar / Deletar item de pedido | Sim |
 
 > Lista completa e testável de todos os 20 endpoints disponível no Swagger em `/docs` (rodando localmente).
+
+## Deploy em produção
+
+A API está hospedada em uma instância **AWS EC2**, servida via **Gunicorn** e gerenciada como serviço pelo **systemd**, garantindo reinício automático em caso de falha.
+
+- **Servidor WSGI:** Gunicorn (`Procfile`)
+- **Gerenciamento de processo:** systemd (`loja-flask.service`)
+- **Infraestrutura:** AWS EC2 (Amazon Linux), com Elastic IP fixo e Security Group liberando as portas necessárias (API e SSH)
+
+### Deploy automático (CI/CD)
+
+O deploy é automatizado via **GitHub Actions**. A cada `push` na branch `main`, o pipeline definido em [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) executa:
+
+1. Checkout do código
+2. Conexão SSH com o servidor EC2 (usando uma chave privada armazenada em **GitHub Secrets**, nunca exposta no código)
+3. `git pull` para atualizar o código no servidor
+4. Reinício do serviço (`systemctl restart loja-flask`) para aplicar as mudanças
+
+Esse pipeline elimina a necessidade de deploy manual via SSH, reduzindo erro humano e o tempo entre um commit e sua disponibilização em produção.
+
+> Próximo passo planejado: adicionar uma etapa de **CI** ao pipeline, rodando testes automatizados (`pytest`) antes do deploy, para validar as rotas da API a cada push.
 
 ## Autor
 
