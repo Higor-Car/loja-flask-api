@@ -36,7 +36,7 @@ python Banco.py      # cria/inicializa o banco SQLite
 python app.py         # inicia o servidor
 ```
 
-Servidor disponível em `http://127.0.0.1:5000`, com documentação Swagger em `http://127.0.0.1:5000/docs`.
+Servidor disponível em `http://52.67.253.167:5000`, com documentação Swagger em `http://52.67.253.167:5000/docs`.
 
 ## Autenticação
 
