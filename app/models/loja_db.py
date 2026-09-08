@@ -178,4 +178,46 @@ def deletarItensPedidos(id):
     bancoDados.commit()
     bancoDados.close()
 
+def criarPedidoCompleto(cliente_id, data, itens):
+
+    bancoDados = sqlite3.connect("../../banco-dados-loja.db")
+    cursor = bancoDados.cursor()
+
+    try:
+
+        cursor.execute("""SELECT * FROM produtos""")
+        todos = cursor.fetchall()
+        colunas = [desc[0] for desc in cursor.description]
+        produtos = {p["id"]: p for p in [dict(zip(colunas, linha)) for linha in todos]}
+
+        for item in itens:
+            produto = produtos.get(item["produto_id"])
+            if produto is None:
+                raise ValueError(f"Produto {item['produto_id']} não existe")
+            if produto["quantidade"] < item["quantidade"]:
+                raise ValueError(f"Estoque insuficiente para {produto['nome']}")
+
+        cursor.execute("""INSERT INTO pedido(cliente_id,data)VALUES(?,?)""", (cliente_id, data))
+        pedido_id = cursor.lastrowid
+
+        for item in itens:
+            cursor.execute(
+                """INSERT INTO itensPedido(pedido_id,produto_id,quantidade)VALUES(?,?,?)""",
+                (pedido_id, item["produto_id"], item["quantidade"])
+            )
+            nova_quantidade = produtos[item["produto_id"]]["quantidade"] - item["quantidade"]
+            cursor.execute(
+                """UPDATE produtos SET quantidade = ? WHERE id = ?""",
+                (nova_quantidade, item["produto_id"])
+            )
+
+        bancoDados.commit()
+        return pedido_id
+
+    except Exception:
+        bancoDados.rollback()
+        raise
+    finally:
+        bancoDados.close()
+
 
