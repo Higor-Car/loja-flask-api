@@ -1,8 +1,8 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_jwt_extended import create_access_token
-from loja_db import buscarClientePorEmail
-from schemas import LoginSchema
+from app.models.loja_db import buscarClientePorEmail
+from app.schemas.schemas import LoginSchema
 
 blp = Blueprint("auth", __name__, description="Autenticação")
 

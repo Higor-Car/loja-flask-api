@@ -1,0 +1,24 @@
+name: Deploy para EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 52.67.253.167
+          username: ec2-user
+          key: ${{ secrets.chave_flask }}
+          script: |
+            cd /home/ec2-user/loja-flask-api
+            git pull
+            sudo systemctl restart loja-flask
