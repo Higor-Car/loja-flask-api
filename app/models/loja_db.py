@@ -219,5 +219,3 @@ def criarPedidoCompleto(cliente_id, data, itens):
         raise
     finally:
         bancoDados.close()
-
-
