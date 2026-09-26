@@ -21,10 +21,10 @@ def processar_pergunta(pergunta_usuario: str) -> str:
 
     while response.stop_reason == "tool_use":
 
-        blocos_tool=[p for p in response.content if p.type == "tool_use"]
-        blocos_resultado=[]
+        blocos_tool = [p for p in response.content if p.type == "tool_use"]
+        blocos_resultado = []
         for i in blocos_tool:
-            tool_func=TOOL_FUNCTIONS[i.name]
+            tool_func = TOOL_FUNCTIONS[i.name]
             resultado = tool_func(**i.input)
             blocos_resultado.append({
                 "type": "tool_result",
@@ -37,9 +37,9 @@ def processar_pergunta(pergunta_usuario: str) -> str:
 
         response = client.messages.create(model=MODEL, max_tokens=1024, messages=messages, tools=TOOLS)
 
-    blocos_texto= [p for p in response.content if p.type == "text"]
+    blocos_texto = [p for p in response.content if p.type == "text"]
 
-    resposta_final=""
+    resposta_final = ""
 
     for i in blocos_texto:
         resposta_final += i.text
