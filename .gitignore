@@ -216,5 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-banco-dados-loja.db
-.idea
+.idea/
+*.sqlite3
+*.db
