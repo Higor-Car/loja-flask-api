@@ -12,9 +12,9 @@ client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 MODEL = "claude-sonnet-4-5"
 
 
-def processar_pergunta(pergunta_usuario: str) -> str:
+def processarPergunta(perguntaUsuario: str) -> str:
     messages = [
-        {"role": "user", "content": pergunta_usuario}
+        {"role": "user", "content": perguntaUsuario}
     ]
 
     response = client.messages.create(model=MODEL, max_tokens=1024, messages=messages, tools=TOOLS)
@@ -22,26 +22,26 @@ def processar_pergunta(pergunta_usuario: str) -> str:
     while response.stop_reason == "tool_use":
 
         blocos_tool = [p for p in response.content if p.type == "tool_use"]
-        blocos_resultado = []
+        blocosResultado = []
         for i in blocos_tool:
             tool_func = TOOL_FUNCTIONS[i.name]
             resultado = tool_func(**i.input)
-            blocos_resultado.append({
+            blocosResultado.append({
                 "type": "tool_result",
                 "tool_use_id": i.id,
                 "content": json.dumps(resultado)
             })
 
         messages.append({"role": "assistant", "content": response.content})
-        messages.append({"role": "user", "content": blocos_resultado})
+        messages.append({"role": "user", "content": blocosResultado})
 
         response = client.messages.create(model=MODEL, max_tokens=1024, messages=messages, tools=TOOLS)
 
-    blocos_texto = [p for p in response.content if p.type == "text"]
+    blocosTexto = [p for p in response.content if p.type == "text"]
 
-    resposta_final = ""
+    respostaFinal = ""
 
-    for i in blocos_texto:
-        resposta_final += i.text
+    for i in blocosTexto:
+        respostaFinal += i.text
 
-    return resposta_final
+    return respostaFinal
