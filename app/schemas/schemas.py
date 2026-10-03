@@ -27,3 +27,9 @@ class ItensPedidoSchema(Schema):
 class LoginSchema(Schema):
     email = fields.Email(required=True)
     senha = fields.Str(required=True)
+
+class PerguntaSchema(Schema):
+    pergunta = fields.Str(required=True)
+
+class RespostaSchema(Schema):
+    resposta = fields.Str(dump_only=True)
