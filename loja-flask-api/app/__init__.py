@@ -10,6 +10,7 @@ from app.routes.clientes import blp as ClientesBlp
 from app.routes.pedidos import blp as PedidosBlp
 from app.routes.itensPedidos import blp as ItensPedidosBlp
 from app.routes.auth import blp as AuthBlp
+from app.routes.perguntar import blp as PerguntarBlp
 
 
 def create_app():
@@ -33,5 +34,6 @@ def create_app():
     api.register_blueprint(PedidosBlp)
     api.register_blueprint(ItensPedidosBlp)
     api.register_blueprint(AuthBlp)
+    api.register_blueprint(PerguntarBlp)
 
     return app
