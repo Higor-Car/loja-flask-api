@@ -169,6 +169,28 @@ def buscarUmPedido(id):
         bancoDados.close()
     return dict(zip(colunas, pedidoEspecifico)) if pedidoEspecifico else None
 
+def buscarPedidosDoCliente(cliente_id):
+    bancoDados = connect()
+    cursor = bancoDados.cursor()
+    try:
+        cursor.execute("""SELECT * FROM pedido WHERE cliente_id = %s ORDER BY id""", (cliente_id,))
+        pedidos = cursor.fetchall()
+        colunas = [desc[0] for desc in cursor.description]
+    finally:
+        bancoDados.close()
+    return [dict(zip(colunas, linha)) for linha in pedidos]
+
+def buscarPedidoDoCliente(id, cliente_id):
+    bancoDados = connect()
+    cursor = bancoDados.cursor()
+    try:
+        cursor.execute("""SELECT * FROM pedido WHERE id = %s AND cliente_id = %s""", (id, cliente_id))
+        pedido = cursor.fetchone()
+        colunas = [desc[0] for desc in cursor.description]
+    finally:
+        bancoDados.close()
+    return dict(zip(colunas, pedido)) if pedido else None
+
 def atualizarPedido(cliente_id, data, id):
     bancoDados = connect()
     cursor = bancoDados.cursor()
@@ -220,6 +242,36 @@ def buscarItensPedido(id):
     finally:
         bancoDados.close()
     return dict(zip(colunas, itensPedidoEspecifico)) if itensPedidoEspecifico else None
+
+def buscarItensDoCliente(cliente_id):
+    bancoDados = connect()
+    cursor = bancoDados.cursor()
+    try:
+        cursor.execute(
+            """SELECT i.* FROM itensPedido i JOIN pedido p ON p.id = i.pedido_id
+               WHERE p.cliente_id = %s ORDER BY i.id""",
+            (cliente_id,)
+        )
+        itens = cursor.fetchall()
+        colunas = [desc[0] for desc in cursor.description]
+    finally:
+        bancoDados.close()
+    return [dict(zip(colunas, linha)) for linha in itens]
+
+def buscarItemDoCliente(id, cliente_id):
+    bancoDados = connect()
+    cursor = bancoDados.cursor()
+    try:
+        cursor.execute(
+            """SELECT i.* FROM itensPedido i JOIN pedido p ON p.id = i.pedido_id
+               WHERE i.id = %s AND p.cliente_id = %s""",
+            (id, cliente_id)
+        )
+        item = cursor.fetchone()
+        colunas = [desc[0] for desc in cursor.description]
+    finally:
+        bancoDados.close()
+    return dict(zip(colunas, item)) if item else None
 
 def atualizarItensPedido(pedido_id, produto_id,quantidade, id):
     bancoDados = connect()

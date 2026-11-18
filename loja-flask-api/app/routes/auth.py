@@ -16,5 +16,5 @@ class Login(MethodView):
         if cliente is None:
             from flask_smorest import abort
             abort(401, message="Email ou senha inválidos")
-        token = create_access_token(identity=dados["email"])
+        token = create_access_token(identity=str(cliente["id"]))
         return {"token": token}

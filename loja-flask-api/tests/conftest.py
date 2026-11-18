@@ -6,6 +6,8 @@ from app.models import loja_db
 from app.services import agente
 from tests.claude_falso import ClaudeFalso
 
+CLIENTE_LOGADO = {"id": 1, "nome": "Ana", "email": "ana@example.com", "senha": "hash"}
+
 
 @pytest.fixture(autouse=True)
 def ambiente_de_teste(monkeypatch):
@@ -16,6 +18,9 @@ def ambiente_de_teste(monkeypatch):
         raise AssertionError("Os testes não podem acessar o banco real")
 
     monkeypatch.setattr(loja_db, "connect", conexao_proibida)
+    monkeypatch.setattr(
+        loja_db, "buscarUmCliente", lambda id: CLIENTE_LOGADO if id == CLIENTE_LOGADO["id"] else None
+    )
 
 
 @pytest.fixture
@@ -41,5 +46,5 @@ def cliente_http(aplicacao):
 @pytest.fixture
 def cabecalho_auth(aplicacao):
     with aplicacao.app_context():
-        token = create_access_token(identity="teste@example.com")
+        token = create_access_token(identity=str(CLIENTE_LOGADO["id"]))
     return {"Authorization": f"Bearer {token}"}

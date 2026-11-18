@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 import anthropic
 from app.services.tools_schema import TOOLS
-from app.services.tools import TOOL_FUNCTIONS
+from app.services.tools import FERRAMENTAS_DO_CLIENTE, TOOL_FUNCTIONS
 import json
 
 load_dotenv()
@@ -16,7 +16,7 @@ class AgenteNaoConfigurado(Exception):
     """A chave necessária para usar o assistente não foi definida."""
 
 
-def processarPergunta(perguntaUsuario: str) -> str:
+def processarPergunta(perguntaUsuario: str, clienteId: int) -> str:
     if not os.environ.get("ANTHROPIC_API_KEY"):
         raise AgenteNaoConfigurado()
 
@@ -32,7 +32,11 @@ def processarPergunta(perguntaUsuario: str) -> str:
         blocosResultado = []
         for i in blocos_tool:
             tool_func = TOOL_FUNCTIONS[i.name]
-            resultado = tool_func(**i.input)
+            entrada = dict(i.input)
+            if i.name in FERRAMENTAS_DO_CLIENTE:
+                # O cliente vem sempre do token, nunca do texto interpretado pelo modelo.
+                entrada["cliente_id"] = clienteId
+            resultado = tool_func(**entrada)
             blocosResultado.append({
                 "type": "tool_result",
                 "tool_use_id": i.id,

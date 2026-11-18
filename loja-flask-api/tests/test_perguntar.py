@@ -1,3 +1,4 @@
+from app.routes import perguntar
 from tests.claude_falso import resposta_final
 
 PERGUNTA = {"pergunta": "Tem camisa?"}
@@ -25,6 +26,21 @@ def test_devolve_a_resposta_do_agente(cliente_http, cabecalho_auth, usar_claude)
 
     assert resposta.status_code == 200
     assert resposta.get_json() == {"resposta": "Temos sim."}
+
+
+def test_usa_o_cliente_do_token(cliente_http, cabecalho_auth, monkeypatch):
+    chamadas = []
+
+    def processar_falso(pergunta, cliente_id):
+        chamadas.append((pergunta, cliente_id))
+        return "Certo."
+
+    monkeypatch.setattr(perguntar, "processarPergunta", processar_falso)
+
+    resposta = cliente_http.post("/perguntar", json=PERGUNTA, headers=cabecalho_auth)
+
+    assert resposta.status_code == 200
+    assert chamadas == [("Tem camisa?", 1)]
 
 
 def test_avisa_quando_o_assistente_nao_esta_configurado(cliente_http, cabecalho_auth, monkeypatch):

@@ -15,11 +15,10 @@ TOOLS = [
     },
     {
         "name": "criar_pedido",
-        "description": "Cria um novo pedido para um cliente com uma lista de itens. Use quando o cliente confirmar que quer fazer um pedido.",
+        "description": "Cria um novo pedido para o cliente logado com uma lista de itens. Use quando o cliente confirmar que quer fazer um pedido.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "cliente_id": {"type": "integer", "description": "ID do cliente"},
                 "itens": {
                     "type": "array",
                     "description": "Lista de itens do pedido",
@@ -33,7 +32,7 @@ TOOLS = [
                     }
                 }
             },
-            "required": ["cliente_id", "itens"]
+            "required": ["itens"]
         }
     }
 ]

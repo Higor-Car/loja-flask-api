@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import EXCLUDE, Schema, fields
 
 class ProdutoSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -14,8 +14,12 @@ class ClienteSchema(Schema):
     senha = fields.Str(required=True, load_only=True)
 
 class PedidoSchema(Schema):
+    class Meta:
+        # O dono do pedido vem do token; um cliente_id enviado no corpo é ignorado.
+        unknown = EXCLUDE
+
     id = fields.Int(dump_only=True)
-    cliente_id = fields.Int(required=True)
+    cliente_id = fields.Int(dump_only=True)
     data = fields.Str(required=True)
 
 class ItensPedidoSchema(Schema):

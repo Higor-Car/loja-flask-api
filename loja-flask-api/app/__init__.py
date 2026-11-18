@@ -5,6 +5,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
+from app.models import loja_db
 from app.routes.produtos import blp as ProdutosBlp
 from app.routes.clientes import blp as ClientesBlp
 from app.routes.pedidos import blp as PedidosBlp
@@ -26,7 +27,16 @@ def create_app():
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/docs"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-    JWTManager(app)
+    jwt = JWTManager(app)
+
+    @jwt.user_lookup_loader
+    def carregarClienteDoToken(_cabecalho, dadosToken):
+        try:
+            cliente_id = int(dadosToken["sub"])
+        except (TypeError, ValueError):
+            return None
+        return loja_db.buscarUmCliente(cliente_id)
+
     api = Api(app)
 
     api.register_blueprint(ProdutosBlp)

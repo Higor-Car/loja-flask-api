@@ -1,6 +1,6 @@
 from flask import current_app
 from flask_smorest import Blueprint,abort
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import current_user, jwt_required
 from flask.views import MethodView
 from app.services.agente import AgenteNaoConfigurado,processarPergunta
 from app.schemas.schemas import PerguntaSchema,RespostaSchema
@@ -16,7 +16,7 @@ class Perguntar(MethodView):
     def post(self, dados):
         pergunta = dados["pergunta"]
         try:
-            texto = processarPergunta(pergunta)
+            texto = processarPergunta(pergunta, current_user["id"])
         except AgenteNaoConfigurado:
             abort(503, message="O assistente não está configurado neste servidor")
         except Exception:

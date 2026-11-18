@@ -28,6 +28,8 @@ def criar_pedido(cliente_id: int, itens: list) -> dict:
         return {"sucesso": False, "dados": None, "mensagem": f"Erro ao criar pedido: {str(e)}"}
 
 
+FERRAMENTAS_DO_CLIENTE = {"criar_pedido"}
+
 TOOL_FUNCTIONS = {
     "buscar_produto": buscar_produto,
     "criar_pedido": criar_pedido,
