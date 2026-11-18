@@ -240,36 +240,45 @@ def deletarItensPedidos(id):
         bancoDados.close()
 
 def criarPedidoCompleto(cliente_id, data, itens):
+    if not itens:
+        raise ValueError("O pedido precisa ter ao menos um item")
+
+    quantidades = {}
+    for item in itens:
+        if item["quantidade"] <= 0:
+            raise ValueError("A quantidade de cada item deve ser maior que zero")
+        produto_id = item["produto_id"]
+        quantidades[produto_id] = quantidades.get(produto_id, 0) + item["quantidade"]
 
     bancoDados = connect()
     cursor = bancoDados.cursor()
 
     try:
+        # Trava os produtos em ordem fixa para compras simultâneas não venderem o mesmo estoque.
+        cursor.execute(
+            """SELECT id, nome, quantidade FROM produtos WHERE id = ANY(%s) ORDER BY id FOR UPDATE""",
+            (sorted(quantidades),)
+        )
+        produtos = {id: (nome, estoque) for id, nome, estoque in cursor.fetchall()}
 
-        cursor.execute("""SELECT * FROM produtos""")
-        todos = cursor.fetchall()
-        colunas = [desc[0] for desc in cursor.description]
-        produtos = {p["id"]: p for p in [dict(zip(colunas, linha)) for linha in todos]}
-
-        for item in itens:
-            produto = produtos.get(item["produto_id"])
-            if produto is None:
-                raise ValueError(f"Produto {item['produto_id']} não existe")
-            if produto["quantidade"] < item["quantidade"]:
-                raise ValueError(f"Estoque insuficiente para {produto['nome']}")
+        for produto_id, quantidade in quantidades.items():
+            if produto_id not in produtos:
+                raise ValueError(f"Produto {produto_id} não existe")
+            nome, estoque = produtos[produto_id]
+            if estoque < quantidade:
+                raise ValueError(f"Estoque insuficiente para {nome}")
 
         cursor.execute("""INSERT INTO pedido(cliente_id,data)VALUES(%s,%s) RETURNING id""", (cliente_id, data))
         pedido_id = cursor.fetchone()[0]
 
-        for item in itens:
+        for produto_id, quantidade in quantidades.items():
             cursor.execute(
                 """INSERT INTO itensPedido(pedido_id,produto_id,quantidade)VALUES(%s,%s,%s)""",
-                (pedido_id, item["produto_id"], item["quantidade"])
+                (pedido_id, produto_id, quantidade)
             )
-            nova_quantidade = produtos[item["produto_id"]]["quantidade"] - item["quantidade"]
             cursor.execute(
-                """UPDATE produtos SET quantidade = %s WHERE id = %s""",
-                (nova_quantidade, item["produto_id"])
+                """UPDATE produtos SET quantidade = quantidade - %s WHERE id = %s""",
+                (quantidade, produto_id)
             )
         bancoDados.commit()
         return pedido_id

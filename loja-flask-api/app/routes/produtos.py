@@ -17,7 +17,7 @@ class ProdutoLista(MethodView):
     @blp.arguments(ProdutoSchema)
     @blp.response(201, ProdutoSchema)
     def post(self, dados):
-        id = inserirProduto(dados["nome"], dados["preco"], dados["descricao"], dados["quantidade"])
+        id = inserirProduto(dados["nome"], dados["preco"], dados.get("descricao"), dados["quantidade"])
         return {**dados, "id": id}
 
 
@@ -35,7 +35,7 @@ class Produto(MethodView):
     @blp.arguments(ProdutoSchema)
     @blp.response(200, ProdutoSchema)
     def put(self, dados, id):
-        atualizarProduto(dados["nome"], dados["preco"], dados["descricao"], dados["quantidade"], id)
+        atualizarProduto(dados["nome"], dados["preco"], dados.get("descricao"), dados["quantidade"], id)
         return {**dados, "id": id}
 
     @jwt_required()
