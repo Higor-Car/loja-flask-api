@@ -1,9 +1,9 @@
 name: Deploy para EC2
 
+# Desativado: a instância EC2 de destino foi encerrada em novembro de 2026.
+# O workflow roda apenas manualmente e foi mantido como referência.
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
